@@ -3,13 +3,13 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class umbc_assnsEditorTarget : TargetRules
+public class assn1EditorTarget : TargetRules
 {
-	public umbc_assnsEditorTarget( TargetInfo Target) : base(Target)
+	public assn1EditorTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
-		ExtraModuleNames.Add("umbc_assns");
+		ExtraModuleNames.Add("assn1");
 	}
 }

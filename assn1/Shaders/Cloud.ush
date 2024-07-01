@@ -1,0 +1,11 @@
+// nskdjgn
+
+float3 Cloud(FMaterialPixelParameters Parameters)
+{
+    FLWCVector3 WPos = GetWorldPosition(Parameters);
+    FLWCVector3 ObjectWPos = GetObjectWorldPosition(Parameters);
+    float3 P = LWCToFloat(LWCSubtract(WPos, ObjectWPos));
+    //return saturate(P);
+    return dot(P, P) * 0.001;
+
+}

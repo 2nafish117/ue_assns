@@ -5,7 +5,7 @@
 	"Description": "",
 	"Modules": [
 		{
-			"Name": "umbc_assns",
+			"Name": "assn1",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}

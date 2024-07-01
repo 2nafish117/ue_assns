@@ -3,13 +3,13 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class umbc_assnsTarget : TargetRules
+public class assn1Target : TargetRules
 {
-	public umbc_assnsTarget(TargetInfo Target) : base(Target)
+	public assn1Target(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
-		ExtraModuleNames.Add("umbc_assns");
+		ExtraModuleNames.Add("assn1");
 	}
 }
