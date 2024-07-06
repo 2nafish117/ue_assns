@@ -1,11 +1,58 @@
-// nskdjgn
 
-float3 Cloud(FMaterialPixelParameters Parameters)
+float CloudDensity(float3 P)
 {
-    FLWCVector3 WPos = GetWorldPosition(Parameters);
-    FLWCVector3 ObjectWPos = GetObjectWorldPosition(Parameters);
-    float3 P = LWCToFloat(LWCSubtract(WPos, ObjectWPos));
-    //return saturate(P);
-    return dot(P, P) * 0.001;
+    float Mask = smoothstep(0.8, 0, dot(P, P));
+    float Noise = saturate(0.6 * FastGradientPerlinNoise3D_TEX(4 * P) + 0.4);
+    return Mask * Noise;
+}
 
+float4 Cloud(FMaterialPixelParameters Parameters, float3 Albedo, int MaxSteps)
+{
+    const FLWCVector3 Pos = GetWorldPosition(Parameters);
+    const FLWCVector3 Center = GetObjectWorldPosition(Parameters);
+    const FPrimitiveSceneData PrimData = GetPrimitiveData(Parameters);
+    
+    float Size = PrimData.ObjectBoundsX;
+    Size = max(Size, PrimData.ObjectBoundsY);
+    Size = max(Size, PrimData.ObjectBoundsZ);
+    
+    float3 LightVec = MaterialExpressionAtmosphericLightVector(Parameters);
+    
+    const float3 RayOrigin = LWCToFloat(LWCSubtract(Pos, Center)) / Size;
+    const float3 RayDir = -Parameters.CameraVector;
+    const float3 RayStep = 2.0 * RayDir / MaxSteps;
+    const float StepSize = 2.0 / MaxSteps;
+    const float3 ShadowStep = 2.0 * LightVec / MaxSteps;
+    const float K = 1.0 / MaxSteps;
+    
+    float4 Color = 0;
+    float StepTakenVis = 0;
+    float3 SamplePos = RayOrigin;
+    
+    int3 RandPos = int3(GetPixelPosition(Parameters), View.FrameNumber);
+    float3 Rand = float3(Rand3DPCG16(RandPos)) / 0x10000;
+    SamplePos += Rand.x * RayStep;
+
+    // @TODO: 4 extensions in ppt
+    for (int Step = 0; Step < MaxSteps && dot(SamplePos, SamplePos) < 1; ++Step)
+    {
+        float4 SampleColor = float4(Albedo, 1) * CloudDensity(SamplePos);
+        if (Color.a > 0)
+        {
+            float3 ShadowSample = SamplePos;
+            float Shadow = 0;
+            for (int ShStep = 0; ShStep < MaxSteps && dot(ShadowSample, ShadowSample) < 1; ++ShStep)
+            {
+                Shadow += (1 - Shadow) * CloudDensity(ShadowSample);
+                ShadowSample += ShadowStep;
+            }   
+            SampleColor.rgb *= 1 - Shadow;
+        }
+        
+        Color += (1 - Color.a) * SampleColor;
+        SamplePos += RayStep;
+        StepTakenVis += 1.0 / MaxSteps;
+    }
+    
+    return Color;
 }
