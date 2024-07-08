@@ -14,8 +14,18 @@ class ASSN2_API AKruskalMazeGenerator : public AActor
 public:
 	AKruskalMazeGenerator();
 
+	virtual void OnConstruction(const FTransform& Transform);
+
 private:
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* StaticMeshComponent;
+	UInstancedStaticMeshComponent* InstancedMeshComponent;
 
+	UPROPERTY(EditAnywhere)
+	UMaterial* Material;
+
+	UPROPERTY(EditAnywhere)
+	int NumRows = 3;
+
+	UPROPERTY(EditAnywhere)
+	int NumCols = 3;
 };
