@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-#ifdef __clang__
-#pragma clang optimize off
-#else
-#pragma optimize("", off)
-#endif
+//#ifdef __clang__
+//#pragma clang optimize off
+//#else
+//#pragma optimize("", off)
+//#endif
 
 #include "KruskalMazeGenerator.h"
 
@@ -59,8 +59,8 @@ void AKruskalMazeGenerator::OnConstruction(const FTransform& Transform) {
 			int nx = i - 1;
 			int ny = j;
 
-			TArray<GraphNode>* adjList = AdjGraph.Find(GraphNode(x, y));
-			if(adjList == nullptr || adjList->Find(GraphNode(nx, ny)) == INDEX_NONE) {
+			TArray<FGraphNode>* adjList = AdjGraph.Find(FGraphNode(x, y));
+			if(adjList == nullptr || adjList->Find(FGraphNode(nx, ny)) == INDEX_NONE) {
 				// draw if not neighbours
 				FRotator Rotation = FRotator(FQuat::MakeFromRotationVector(FVector(0, 1, 0) * FMath::DegreesToRadians(90)));
 
@@ -80,8 +80,8 @@ void AKruskalMazeGenerator::OnConstruction(const FTransform& Transform) {
 			int nx = i;
 			int ny = j - 1;
 
-			TArray<GraphNode>* adjList = AdjGraph.Find(GraphNode(x, y));
-			if (adjList == nullptr || adjList->Find(GraphNode(nx, ny)) == INDEX_NONE) {
+			TArray<FGraphNode>* adjList = AdjGraph.Find(FGraphNode(x, y));
+			if (adjList == nullptr || adjList->Find(FGraphNode(nx, ny)) == INDEX_NONE) {
 				// draw if not neighbours
 				FQuat QRot = FQuat::MakeFromRotationVector(FVector(0, 1, 0) * FMath::DegreesToRadians(90));
 				QRot = FQuat::MakeFromRotationVector(FVector(0, 0, 1) * FMath::DegreesToRadians(90)) * QRot;
@@ -96,7 +96,7 @@ void AKruskalMazeGenerator::OnConstruction(const FTransform& Transform) {
 }
 
 // quick shuffle from https://forums.unrealengine.com/t/equivalent-of-bp-shuffle-array-for-c-tarrays/349431
-void AKruskalMazeGenerator::ShuffleArray(TArray<GraphEdge>& Array)
+void AKruskalMazeGenerator::ShuffleArray(TArray<FGraphEdge>& Array)
 {
 	if (Array.Num() > 0)
 	{
@@ -112,8 +112,8 @@ void AKruskalMazeGenerator::ShuffleArray(TArray<GraphEdge>& Array)
 	}
 }
 
-AKruskalMazeGenerator::GraphNode AKruskalMazeGenerator::GetRoot(const TMap<GraphNode, GraphNode>& previous, GraphNode node) {
-	const GraphNode* prev = previous.Find(node);
+AKruskalMazeGenerator::FGraphNode AKruskalMazeGenerator::GetRoot(const TMap<FGraphNode, FGraphNode>& previous, FGraphNode node) {
+	const FGraphNode* prev = previous.Find(node);
 	check(prev != nullptr);
 
 	while (*prev != node) {
@@ -124,55 +124,55 @@ AKruskalMazeGenerator::GraphNode AKruskalMazeGenerator::GetRoot(const TMap<Graph
 	return *prev;
 };
 
-void AKruskalMazeGenerator::Union(TMap<GraphNode, GraphNode>& previous, GraphNode node1, GraphNode node2) {
-	GraphNode root1 = GetRoot(previous, node1);
-	GraphNode root2 = GetRoot(previous, node2);
+void AKruskalMazeGenerator::Union(TMap<FGraphNode, FGraphNode>& previous, FGraphNode node1, FGraphNode node2) {
+	FGraphNode root1 = GetRoot(previous, node1);
+	FGraphNode root2 = GetRoot(previous, node2);
 
 	// prev or root2 is now root1
 	previous.Add(root2, root1);
 };
 
-void AKruskalMazeGenerator::Kruskal(TMap<GraphNode, TArray<GraphNode>>& adjGraph) {
+void AKruskalMazeGenerator::Kruskal(TMap<FGraphNode, TArray<FGraphNode>>& adjGraph) {
 	const int numRows = NumRows;
 	const int numCols = NumCols;
 
 	UE_LOG(LogTemp, Log, TEXT("running kruskal with rows=%d cols=%d"), numRows, numCols);
 
-	TArray<GraphEdge> edges;
+	TArray<FGraphEdge> edges;
 
-	TMap<GraphNode, GraphNode> previous;
+	TMap<FGraphNode, FGraphNode> previous;
 	previous.Reserve(numCols * numRows);
 
 	// construct edge list, connectivity and adjGraph
 	for (int x = 0; x < numRows; ++x) {
 		for (int y = 0; y < numCols; ++y) {
-			GraphNode node = GraphNode(x, y);
+			FGraphNode node = FGraphNode(x, y);
 
 			auto Safe = [numRows, numCols](int x, int y) { return x >= 0 && x < numRows && y >= 0 && y < numCols; };
 
 			if (Safe(x - 1, y)) {
-				GraphNode neighbor = GraphNode(x - 1, y);
-				edges.Add(GraphEdge(node, neighbor));
+				FGraphNode neighbor = FGraphNode(x - 1, y);
+				edges.Add(FGraphEdge(node, neighbor));
 			}
 
 			if (Safe(x + 1, y)) {
-				GraphNode neighbor = GraphNode(x + 1, y);
-				edges.Add(GraphEdge(node, neighbor));
+				FGraphNode neighbor = FGraphNode(x + 1, y);
+				edges.Add(FGraphEdge(node, neighbor));
 			}
 
 			if (Safe(x, y - 1)) {
-				GraphNode neighbor = GraphNode(x, y - 1);
-				edges.Add(GraphEdge(node, neighbor));
+				FGraphNode neighbor = FGraphNode(x, y - 1);
+				edges.Add(FGraphEdge(node, neighbor));
 			}
 
 			if (Safe(x, y + 1)) {
-				GraphNode neighbor = GraphNode(x, y + 1);
-				edges.Add(GraphEdge(node, neighbor));
+				FGraphNode neighbor = FGraphNode(x, y + 1);
+				edges.Add(FGraphEdge(node, neighbor));
 			}
 
 			int i = numCols * x + y;
 			previous.Add(node, node);
-			adjGraph.Add(node, TArray<GraphNode>());
+			adjGraph.Add(node, TArray<FGraphNode>());
 		}
 	}
 
@@ -181,15 +181,15 @@ void AKruskalMazeGenerator::Kruskal(TMap<GraphNode, TArray<GraphNode>>& adjGraph
 
 	// build adjGraph
 	for (const auto& edge : edges) {
-		GraphNode start = edge.Key;
-		GraphNode end = edge.Value;
+		FGraphNode start = edge.Key;
+		FGraphNode end = edge.Value;
 
 		if (GetRoot(previous, start) != GetRoot(previous, end)) {
-			TArray<GraphNode>* startList = adjGraph.Find(start);
+			TArray<FGraphNode>* startList = adjGraph.Find(start);
 			check(startList);
 			startList->Add(end);
 			
-			TArray<GraphNode>* endList = adjGraph.Find(end);
+			TArray<FGraphNode>* endList = adjGraph.Find(end);
 			check(endList);
 			endList->Add(start);
 
@@ -200,8 +200,8 @@ void AKruskalMazeGenerator::Kruskal(TMap<GraphNode, TArray<GraphNode>>& adjGraph
 	UE_LOG(LogTemp, Log, TEXT("built adj graph"));
 }
 
-#ifdef __clang__
-#pragma clang optimize on
-#else
-#pragma optimize("", on)
-#endif
+//#ifdef __clang__
+//#pragma clang optimize on
+//#else
+//#pragma optimize("", on)
+//#endif

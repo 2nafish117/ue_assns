@@ -34,18 +34,17 @@ private:
 
 	UStaticMesh* PlaneMesh;
 
-	using GraphNode = TPair<int, int>;
-	using GraphEdge = TPair<GraphNode, GraphNode>;
+	using FGraphNode = TPair<int, int>;
+	using FGraphEdge = TPair<FGraphNode, FGraphNode>;
 
-	// @TODO: make static array len of 4, a node can have only upto 4 neighbours
-	TMap<GraphNode, TArray<GraphNode>> AdjGraph;
+	TMap<FGraphNode, TArray<FGraphNode>> AdjGraph;
 
 private:
-	void Kruskal(TMap<GraphNode, TArray<GraphNode>>& adjGraph);
+	void Kruskal(TMap<FGraphNode, TArray<FGraphNode>>& adjGraph);
 
-	void ShuffleArray(TArray<GraphEdge>& Array);
+	void ShuffleArray(TArray<FGraphEdge>& Array);
 
-	GraphNode GetRoot(const TMap<GraphNode, GraphNode>& connectivity, GraphNode node);
+	FGraphNode GetRoot(const TMap<FGraphNode, FGraphNode>& connectivity, FGraphNode node);
 
-	void Union(TMap<GraphNode, GraphNode>& connectivity, GraphNode node1, GraphNode node2);
+	void Union(TMap<FGraphNode, FGraphNode>& connectivity, FGraphNode node1, FGraphNode node2);
 };
