@@ -1,4 +1,4 @@
-# umbc_assns
+# eu_assns
 
 following the umbc graphics for games course [here](https://userpages.cs.umbc.edu/olano/691/)
 
